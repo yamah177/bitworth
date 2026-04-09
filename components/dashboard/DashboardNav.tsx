@@ -43,13 +43,14 @@ export function DashboardNav({ userEmail, btcPrice, currency, onCurrencyChange, 
   return (
     <nav className="sticky top-0 z-40 bg-[#0a0a0a]/90 backdrop-blur-sm border-b border-white/5">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 flex items-center justify-between h-14">
-        <div className="flex items-center gap-3">
-          <div className="w-7 h-7 rounded-full bg-[#F7931A] flex items-center justify-center font-mono font-bold text-xs text-black">
-            ₿
-          </div>
-          <span className="font-bold text-white tracking-tight">Satsworth</span>
+
+        {/* Logo — orange S + white ATSWORTH */}
+        <div style={{ fontFamily: 'system-ui, sans-serif', fontWeight: 700, fontSize: '20px', letterSpacing: '2px', userSelect: 'none' }}>
+          <span style={{ color: '#F7931A' }}>S</span>
+          <span style={{ color: '#f0f0f0' }}>ATSWORTH</span>
         </div>
 
+        {/* BTC price pill */}
         <div className={`hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs font-mono transition-colors duration-300 ${
           priceFlash
             ? 'bg-[#F7931A]/20 border-[#F7931A]/40 text-[#F7931A]'
@@ -59,6 +60,7 @@ export function DashboardNav({ userEmail, btcPrice, currency, onCurrencyChange, 
           1 BTC = {btcPrice > 0 ? formatFiat(btcPrice, currency) : '...'}
         </div>
 
+        {/* Right actions */}
         <div className="flex items-center gap-2">
           <CurrencySelector value={currency} onChange={onCurrencyChange} />
           <button onClick={onRefresh} disabled={refreshing}
