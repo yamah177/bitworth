@@ -3,16 +3,18 @@
 import { useState } from 'react'
 import { Pencil, Trash2, Plus } from 'lucide-react'
 import { Liability, LIABILITY_TYPE_LABELS, LIABILITY_TYPE_ICONS } from '@/types'
-import { formatUsd, formatBtc, usdToBtc } from '@/lib/utils'
+import { formatBtc, usdToBtc } from '@/lib/utils'
+import { formatFiat, CurrencyCode } from '@/lib/currencies'
 import { LiabilityFormModal } from '@/components/ui/FormModals'
 
 interface Props {
   liabilities: Liability[]
   btcPrice: number
+  currency: CurrencyCode
   onRefresh: () => void
 }
 
-export function LiabilitiesList({ liabilities, btcPrice, onRefresh }: Props) {
+export function LiabilitiesList({ liabilities, btcPrice, currency, onRefresh }: Props) {
   const [showAdd, setShowAdd] = useState(false)
   const [editing, setEditing] = useState<Liability | null>(null)
   const [deleting, setDeleting] = useState<string | null>(null)
@@ -35,10 +37,8 @@ export function LiabilitiesList({ liabilities, btcPrice, onRefresh }: Props) {
             <span className="ml-2 text-xs text-white/20">{liabilities.length} items</span>
           )}
         </div>
-        <button
-          onClick={() => setShowAdd(true)}
-          className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300 transition-colors font-medium"
-        >
+        <button onClick={() => setShowAdd(true)}
+          className="flex items-center gap-1.5 text-xs text-red-400 hover:text-red-300 transition-colors font-medium">
           <Plus size={14} />
           Add liability
         </button>
@@ -53,16 +53,12 @@ export function LiabilitiesList({ liabilities, btcPrice, onRefresh }: Props) {
         <div>
           {liabilities.map((liability) => {
             const btcVal = usdToBtc(liability.usd_balance, btcPrice)
-
             return (
-              <div
-                key={liability.id}
-                className="flex items-center gap-4 px-5 py-3.5 border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors group"
-              >
+              <div key={liability.id}
+                className="flex items-center gap-4 px-5 py-3.5 border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors group">
                 <div className="w-9 h-9 rounded-xl bg-red-500/10 flex items-center justify-center text-base flex-shrink-0">
                   {LIABILITY_TYPE_ICONS[liability.type as keyof typeof LIABILITY_TYPE_ICONS]}
                 </div>
-
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-medium text-white truncate">{liability.name}</div>
                   <div className="text-xs text-white/30 mt-0.5">
@@ -70,55 +66,35 @@ export function LiabilitiesList({ liabilities, btcPrice, onRefresh }: Props) {
                     {liability.institution && ` · ${liability.institution}`}
                   </div>
                 </div>
-
                 <div className="text-right flex-shrink-0">
-                  <div className="font-mono text-sm font-bold text-red-400">
-                    −{formatBtc(btcVal)}
-                  </div>
-                  <div className="text-xs text-white/30 mt-0.5">{formatUsd(liability.usd_balance)}</div>
+                  <div className="font-mono text-sm font-bold text-red-400">−{formatBtc(btcVal)}</div>
+                  <div className="text-xs text-white/30 mt-0.5">{formatFiat(liability.usd_balance, currency)}</div>
                 </div>
-
                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                  <button
-                    onClick={() => setEditing(liability)}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg text-white/30 hover:text-white hover:bg-white/5 transition-colors"
-                  >
+                  <button onClick={() => setEditing(liability)}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg text-white/30 hover:text-white hover:bg-white/5 transition-colors">
                     <Pencil size={13} />
                   </button>
-                  <button
-                    onClick={() => handleDelete(liability.id)}
-                    disabled={deleting === liability.id}
-                    className="w-7 h-7 flex items-center justify-center rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-colors"
-                  >
+                  <button onClick={() => handleDelete(liability.id)} disabled={deleting === liability.id}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg text-white/30 hover:text-red-400 hover:bg-red-500/10 transition-colors">
                     <Trash2 size={13} />
                   </button>
                 </div>
               </div>
             )
           })}
-
           <div className="flex items-center justify-between px-5 py-3 bg-white/[0.02]">
             <span className="text-xs text-white/30 uppercase tracking-wider">Total owed</span>
             <div className="text-right">
-              <div className="font-mono text-sm font-bold text-red-400">
-                −{formatBtc(usdToBtc(total, btcPrice))}
-              </div>
-              <div className="text-xs text-white/30">{formatUsd(total)}</div>
+              <div className="font-mono text-sm font-bold text-red-400">−{formatBtc(usdToBtc(total, btcPrice))}</div>
+              <div className="text-xs text-white/30">{formatFiat(total, currency)}</div>
             </div>
           </div>
         </div>
       )}
 
-      {showAdd && (
-        <LiabilityFormModal onClose={() => setShowAdd(false)} onSaved={onRefresh} />
-      )}
-      {editing && (
-        <LiabilityFormModal
-          existing={editing}
-          onClose={() => setEditing(null)}
-          onSaved={onRefresh}
-        />
-      )}
+      {showAdd && <LiabilityFormModal onClose={() => setShowAdd(false)} onSaved={onRefresh} />}
+      {editing && <LiabilityFormModal existing={editing} onClose={() => setEditing(null)} onSaved={onRefresh} />}
     </div>
   )
 }
