@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BitWorth — Bitcoin Net Worth Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #222222;
+    --orange: #f7931a;
+    --orange-dim: rgba(247,147,26,0.12);
+    --orange-glow: rgba(247,147,26,0.3);
+    --green: #00d97e;
+    --red: #ff4b4b;
+    --text: #f0f0f0;
+    --text-dim: #666;
+    --text-mid: #999;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Grid noise texture */
+  body::before {
+    content:'';
+    position:fixed; inset:0;
+    background-image: repeating-linear-gradient(0deg,transparent,transparent 39px,rgba(255,255,255,0.015) 39px,rgba(255,255,255,0.015) 40px),
+                      repeating-linear-gradient(90deg,transparent,transparent 39px,rgba(255,255,255,0.015) 39px,rgba(255,255,255,0.015) 40px);
+    pointer-events:none; z-index:0;
+  }
+
+  .app { position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:0 24px 80px; }
+
+  /* HEADER */
+  header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 28px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .logo {
+    font-family: 'Space Mono', monospace;
+    font-size: 20px;
+    letter-spacing: 0.15em;
+    color: var(--orange);
+    display:flex; align-items:center; gap:10px;
+  }
+  .logo-symbol { font-size: 28px; }
+  .btc-price-badge {
+    display:flex; align-items:center; gap:12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 18px;
+  }
+  .price-label { font-size:11px; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.1em; }
+  .price-value {
+    font-family:'Space Mono',monospace;
+    font-size:18px;
+    color:var(--orange);
+    font-weight:700;
+  }
+  .price-change {
+    font-size:12px; font-weight:600;
+    padding:3px 8px; border-radius:6px;
+  }
+  .price-change.up { background:rgba(0,217,126,0.15); color:var(--green); }
+  .price-change.down { background:rgba(255,75,75,0.15); color:var(--red); }
+
+  /* HERO NET WORTH */
+  .hero {
+    text-align:center;
+    padding: 48px 0 56px;
+    position:relative;
+  }
+  .hero::after {
+    content:'';
+    position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+    width:200px; height:1px;
+    background: linear-gradient(90deg, transparent, var(--orange), transparent);
+  }
+  .hero-label {
+    font-size:12px; letter-spacing:0.2em; text-transform:uppercase;
+    color:var(--text-dim); margin-bottom:16px;
+  }
+  .hero-btc {
+    font-family:'Space Mono',monospace;
+    font-size:clamp(42px,7vw,72px);
+    font-weight:700;
+    color:var(--orange);
+    line-height:1;
+    text-shadow: 0 0 60px var(--orange-glow);
+    margin-bottom:10px;
+    transition: all 0.4s ease;
+  }
+  .hero-usd {
+    font-size:22px; color:var(--text-mid); font-weight:300;
+    margin-bottom: 20px;
+  }
+  .hero-sats-detail {
+    font-family:'Space Mono',monospace;
+    font-size:13px; color:var(--text-dim);
+    letter-spacing:0.05em;
+  }
+
+  /* CHART */
+  .chart-section { margin: 48px 0; }
+  .section-header {
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:20px;
+  }
+  .section-title {
+    font-size:13px; text-transform:uppercase; letter-spacing:0.15em;
+    color:var(--text-dim);
+  }
+  .chart-tabs { display:flex; gap:4px; }
+  .chart-tab {
+    font-family:'Space Mono',monospace;
+    font-size:11px;
+    padding:5px 12px; border-radius:6px;
+    border:1px solid var(--border);
+    background:transparent; color:var(--text-dim);
+    cursor:pointer; transition:all 0.2s;
+  }
+  .chart-tab.active { background:var(--orange-dim); color:var(--orange); border-color:var(--orange); }
+  .chart-wrap {
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:24px;
+    position:relative;
+  }
+  canvas#netWorthChart { width:100% !important; }
+
+  /* ACCOUNTS GRID */
+  .accounts-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px,1fr));
+    gap:16px;
+    margin-top:48px;
+  }
+  .account-category { grid-column: 1/-1; }
+  .cat-label {
+    font-size:11px; text-transform:uppercase; letter-spacing:0.18em;
+    color:var(--text-dim); padding: 20px 0 12px;
+    display:flex; align-items:center; gap:12px;
+  }
+  .cat-label::after {
+    content:''; flex:1; height:1px; background:var(--border);
+  }
+  .account-card {
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:20px;
+    transition:border-color 0.2s, transform 0.2s;
+    cursor:pointer;
+    position:relative;
+    overflow:hidden;
+  }
+  .account-card::before {
+    content:'';
+    position:absolute; top:0; left:0; right:0; height:2px;
+    background:linear-gradient(90deg, var(--orange), transparent);
+    opacity:0; transition:opacity 0.2s;
+  }
+  .account-card:hover { border-color:var(--orange); transform:translateY(-2px); }
+  .account-card:hover::before { opacity:1; }
+  .card-top { display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px; }
+  .card-icon {
+    width:40px; height:40px; border-radius:10px;
+    background:var(--orange-dim); display:flex; align-items:center; justify-content:center;
+    font-size:18px;
+  }
+  .card-menu { color:var(--text-dim); font-size:18px; cursor:pointer; padding:4px; line-height:1; }
+  .card-name { font-size:14px; font-weight:500; color:var(--text); margin-bottom:4px; }
+  .card-institution { font-size:12px; color:var(--text-dim); }
+  .card-amounts { margin-top:16px; }
+  .card-btc {
+    font-family:'Space Mono',monospace;
+    font-size:20px; font-weight:700; color:var(--orange);
+    margin-bottom:4px;
+  }
+  .card-usd { font-size:13px; color:var(--text-mid); }
+  .card-sats {
+    font-family:'Space Mono',monospace;
+    font-size:11px; color:var(--text-dim);
+    margin-top:4px;
+  }
+  .card-badge {
+    display:inline-block; font-size:10px; padding:2px 8px; border-radius:20px;
+    font-weight:600; letter-spacing:0.05em; margin-top:10px;
+  }
+  .badge-asset { background:rgba(0,217,126,0.12); color:var(--green); }
+  .badge-liability { background:rgba(255,75,75,0.12); color:var(--red); }
+
+  /* ADD ACCOUNT */
+  .add-card {
+    border:1px dashed var(--border);
+    border-radius:14px;
+    padding:20px;
+    display:flex; align-items:center; justify-content:center;
+    gap:10px;
+    cursor:pointer; color:var(--text-dim);
+    font-size:14px;
+    transition:all 0.2s;
+    min-height:130px;
+  }
+  .add-card:hover { border-color:var(--orange); color:var(--orange); background:var(--orange-dim); }
+  .add-icon { font-size:22px; }
+
+  /* MODAL */
+  .modal-overlay {
+    position:fixed; inset:0;
+    background:rgba(0,0,0,0.8); backdrop-filter:blur(8px);
+    z-index:100; display:none; align-items:center; justify-content:center;
+    padding:20px;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal {
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:20px;
+    padding:32px;
+    width:100%; max-width:480px;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform:translateY(20px); opacity:0; }
+    to { transform:translateY(0); opacity:1; }
+  }
+  .modal-title {
+    font-family:'Space Mono',monospace;
+    font-size:16px; color:var(--orange);
+    margin-bottom:24px;
+    letter-spacing:0.05em;
+  }
+  .modal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
+  .type-btn {
+    background:var(--surface2); border:1px solid var(--border);
+    border-radius:12px; padding:16px; cursor:pointer;
+    text-align:center; transition:all 0.2s;
+  }
+  .type-btn:hover, .type-btn.selected { border-color:var(--orange); background:var(--orange-dim); }
+  .type-btn .t-icon { font-size:24px; margin-bottom:8px; }
+  .type-btn .t-label { font-size:12px; color:var(--text-mid); }
+  .form-field { margin-bottom:16px; }
+  .field-label { font-size:12px; color:var(--text-dim); letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px; }
+  .field-input {
+    width:100%; background:var(--surface2);
+    border:1px solid var(--border); border-radius:10px;
+    padding:12px 16px; color:var(--text); font-size:15px;
+    font-family:'DM Sans',sans-serif;
+    outline:none; transition:border-color 0.2s;
+  }
+  .field-input:focus { border-color:var(--orange); }
+  .field-input::placeholder { color:var(--text-dim); }
+  .btc-equiv {
+    font-family:'Space Mono',monospace;
+    font-size:12px; color:var(--orange);
+    margin-top:8px;
+  }
+  .modal-actions { display:flex; gap:12px; margin-top:24px; }
+  .btn-cancel {
+    flex:1; background:transparent; border:1px solid var(--border);
+    border-radius:10px; padding:13px; color:var(--text-dim); cursor:pointer;
+    font-size:14px; font-family:'DM Sans',sans-serif;
+    transition:all 0.2s;
+  }
+  .btn-cancel:hover { border-color:var(--text-dim); color:var(--text); }
+  .btn-add {
+    flex:2; background:var(--orange); border:none;
+    border-radius:10px; padding:13px; color:#000;
+    cursor:pointer; font-size:14px; font-weight:700;
+    font-family:'DM Sans',sans-serif;
+    transition:opacity 0.2s;
+  }
+  .btn-add:hover { opacity:0.85; }
+
+  /* SUMMARY STRIP */
+  .summary-strip {
+    display:grid; grid-template-columns:repeat(3,1fr);
+    gap:16px; margin:48px 0 0;
+  }
+  .summary-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:20px;
+    text-align:center;
+  }
+  .sum-label { font-size:11px; text-transform:uppercase; letter-spacing:0.15em; color:var(--text-dim); margin-bottom:10px; }
+  .sum-val {
+    font-family:'Space Mono',monospace;
+    font-size:22px; font-weight:700;
+  }
+  .sum-val.orange { color:var(--orange); }
+  .sum-val.green { color:var(--green); }
+  .sum-val.red { color:var(--red); }
+  .sum-sub { font-size:12px; color:var(--text-dim); margin-top:4px; }
+
+  /* SPENDING */
+  .spending-section { margin-top:60px; }
+  .spending-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:20px; }
+  .spend-card {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:20px;
+  }
+  .spend-row {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 0; border-bottom:1px solid var(--border);
+  }
+  .spend-row:last-child { border-bottom:none; }
+  .spend-cat { display:flex; align-items:center; gap:10px; }
+  .spend-emoji { font-size:18px; }
+  .spend-name { font-size:13px; }
+  .spend-amount {
+    font-family:'Space Mono',monospace;
+    font-size:12px; color:var(--text-mid);
+    text-align:right;
+  }
+  .spend-sats { font-size:10px; color:var(--text-dim); }
+
+  /* PULSE ANIMATION */
+  @keyframes pulse {
+    0%, 100% { opacity:1; }
+    50% { opacity:0.5; }
+  }
+  .live-dot {
+    width:7px; height:7px; border-radius:50%;
+    background:var(--green);
+    animation: pulse 2s infinite;
+    display:inline-block; margin-right:6px;
+  }
+
+  .ticker-scroll {
+    overflow:hidden; height:32px;
+    display:flex; align-items:center;
+    background:var(--surface2);
+    border-top:1px solid var(--border);
+    border-bottom:1px solid var(--border);
+    margin-bottom:40px;
+  }
+  .ticker-inner {
+    display:flex; gap:48px;
+    animation: scroll 20s linear infinite;
+    white-space:nowrap;
+    font-family:'Space Mono',monospace;
+    font-size:11px; color:var(--text-dim);
+  }
+  @keyframes scroll {
+    from { transform:translateX(0); }
+    to { transform:translateX(-50%); }
+  }
+  .ticker-item span { color:var(--orange); margin-left:6px; }
+
+  @media(max-width:640px) {
+    .summary-strip { grid-template-columns:1fr; }
+    .spending-grid { grid-template-columns:1fr; }
+    .modal-grid { grid-template-columns:1fr 1fr; }
+    .hero-btc { font-size:38px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header>
+    <div class="logo">
+      <span class="logo-symbol">₿</span>
+      BitWorth
+    </div>
+    <div class="btc-price-badge">
+      <div>
+        <div class="price-label"><span class="live-dot"></span>BTC/USD</div>
+        <div class="price-value" id="btcPrice">$—</div>
+      </div>
+      <div class="price-change up" id="priceChange">—</div>
+    </div>
+  </header>
+
+</div>
+
+<!-- Ticker -->
+<div class="ticker-scroll">
+  <div class="ticker-inner" id="ticker">
+    <span>BTC/USD <span id="t1">—</span></span>
+    <span>1 BTC = 100,000,000 SATS</span>
+    <span>NET WORTH <span id="t2">—</span></span>
+    <span>ASSETS <span id="t3">—</span></span>
+    <span>LIABILITIES <span id="t4">—</span></span>
+    <span>BTC/USD <span id="t1b">—</span></span>
+    <span>1 BTC = 100,000,000 SATS</span>
+    <span>NET WORTH <span id="t2b">—</span></span>
+    <span>ASSETS <span id="t3b">—</span></span>
+    <span>LIABILITIES <span id="t4b">—</span></span>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-label">total net worth</div>
+    <div class="hero-btc" id="heroNetWorth">—</div>
+    <div class="hero-usd" id="heroUSD">Fetching price...</div>
+    <div class="hero-sats-detail" id="heroSats"></div>
+  </div>
+
+  <!-- SUMMARY -->
+  <div class="summary-strip">
+    <div class="summary-card">
+      <div class="sum-label">Total Assets</div>
+      <div class="sum-val green" id="totalAssets">—</div>
+      <div class="sum-sub" id="totalAssetsUSD">—</div>
+    </div>
+    <div class="summary-card">
+      <div class="sum-label">Total Liabilities</div>
+      <div class="sum-val red" id="totalLiabilities">—</div>
+      <div class="sum-sub" id="totalLiabilitiesUSD">—</div>
+    </div>
+    <div class="summary-card">
+      <div class="sum-label">30d Change</div>
+      <div class="sum-val orange" id="monthChange">—</div>
+      <div class="sum-sub">In BTC terms</div>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="chart-section">
+    <div class="section-header">
+      <div class="section-title">Net Worth History</div>
+      <div class="chart-tabs">
+        <button class="chart-tab active" onclick="setRange(this,'1M')">1M</button>
+        <button class="chart-tab" onclick="setRange(this,'3M')">3M</button>
+        <button class="chart-tab" onclick="setRange(this,'6M')">6M</button>
+        <button class="chart-tab" onclick="setRange(this,'1Y')">1Y</button>
+        <button class="chart-tab" onclick="setRange(this,'ALL')">ALL</button>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="netWorthChart" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- ACCOUNTS -->
+  <div class="accounts-grid" id="accountsGrid"></div>
+
+  <!-- SPENDING SECTION -->
+  <div class="spending-section">
+    <div class="section-header">
+      <div class="section-title">This Month's Spending (in sats)</div>
+    </div>
+    <div class="spending-grid">
+      <div class="spend-card" id="spendLeft"></div>
+      <div class="spend-card" id="spendRight"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ADD ACCOUNT MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title">// ADD ACCOUNT — BITWORTH</div>
+    <div class="modal-grid" id="typeGrid"></div>
+    <div class="form-field">
+      <div class="field-label">Account Name</div>
+      <input class="field-input" id="acctName" placeholder="e.g. Chase Checking">
+    </div>
+    <div class="form-field">
+      <div class="field-label">Institution / Notes</div>
+      <input class="field-input" id="acctInstitution" placeholder="e.g. Chase Bank">
+    </div>
+    <div class="form-field">
+      <div class="field-label">Current Value (USD)</div>
+      <input class="field-input" id="acctValue" type="number" placeholder="0.00" oninput="updateEquiv()">
+      <div class="btc-equiv" id="btcEquiv"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-add" onclick="addAccount()">Add Account</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+// ─── STATE ──────────────────────────────────────────────────────────────────
+let btcPrice = 0;
+let selectedType = null;
+
+const ACCOUNT_TYPES = [
+  { id:'checking', icon:'🏦', label:'Checking', isLiability:false },
+  { id:'savings', icon:'💰', label:'Savings', isLiability:false },
+  { id:'mortgage', icon:'🏠', label:'Mortgage', isLiability:true },
+  { id:'home', icon:'🏡', label:'Home Value', isLiability:false },
+  { id:'401k', icon:'📈', label:'401k / IRA', isLiability:false },
+  { id:'brokerage', icon:'📊', label:'Brokerage', isLiability:false },
+  { id:'vehicle', icon:'🚗', label:'Vehicle', isLiability:false },
+  { id:'metals', icon:'🥇', label:'Metals', isLiability:false },
+  { id:'bitcoin', icon:'₿', label:'Bitcoin', isLiability:false },
+  { id:'loan', icon:'💳', label:'Loan / Debt', isLiability:true },
+  { id:'crypto', icon:'🔷', label:'Other Crypto', isLiability:false },
+  { id:'other', icon:'📦', label:'Other Asset', isLiability:false },
+];
+
+// Default demo accounts
+let accounts = [
+  { id:1, type:'checking', name:'Chase Checking', institution:'Chase Bank', usd:12450, isLiability:false },
+  { id:2, type:'savings', name:'HYSA', institution:'Marcus / Goldman', usd:38000, isLiability:false },
+  { id:3, type:'home', name:'Primary Residence', institution:'Zillow Estimate', usd:520000, isLiability:false },
+  { id:4, type:'mortgage', name:'Home Mortgage', institution:'Wells Fargo', usd:380000, isLiability:true },
+  { id:5, type:'401k', name:'401(k)', institution:'Fidelity', usd:145000, isLiability:false },
+  { id:6, type:'brokerage', name:'Taxable Brokerage', institution:'Schwab', usd:67000, isLiability:false },
+  { id:7, type:'vehicle', name:'2022 Tesla Model 3', institution:'KBB Estimate', usd:28000, isLiability:false },
+  { id:8, type:'metals', name:'Gold & Silver', institution:'Manual', usd:8500, isLiability:false },
+  { id:9, type:'bitcoin', name:'Cold Storage BTC', institution:'Ledger', usd:42000, isLiability:false },
+];
+
+const spending = [
+  { emoji:'🏠', name:'Housing', usd:2850 },
+  { emoji:'🚗', name:'Transport', usd:420 },
+  { emoji:'🛒', name:'Groceries', usd:680 },
+  { emoji:'🍔', name:'Dining Out', usd:340 },
+  { emoji:'💊', name:'Healthcare', usd:180 },
+  { emoji:'🎮', name:'Entertainment', usd:95 },
+  { emoji:'💡', name:'Utilities', usd:210 },
+  { emoji:'📱', name:'Subscriptions', usd:88 },
+  { emoji:'👕', name:'Clothing', usd:155 },
+  { emoji:'✈️', name:'Travel', usd:0 },
+];
+
+// ─── BTC PRICE ───────────────────────────────────────────────────────────────
+async function fetchBTCPrice() {
+  try {
+    const r = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_change=true');
+    if (!r.ok) throw new Error('API error');
+    const d = await r.json();
+    btcPrice = d.bitcoin.usd;
+    const change = d.bitcoin.usd_24h_change;
+    updatePriceDisplay(btcPrice, change);
+  } catch(e) {
+    // Fallback simulated price
+    if (!btcPrice) btcPrice = 97423;
+    btcPrice += (Math.random() - 0.5) * 200;
+    updatePriceDisplay(btcPrice, 2.34);
+  }
+  renderAll();
+}
+
+function updatePriceDisplay(price, change) {
+  const fmt = new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0});
+  document.getElementById('btcPrice').textContent = fmt.format(price);
+  const el = document.getElementById('priceChange');
+  const up = change >= 0;
+  el.textContent = (up?'+':'')+change.toFixed(2)+'%';
+  el.className = 'price-change ' + (up?'up':'down');
+  ['t1','t1b'].forEach(id => { const e=document.getElementById(id); if(e) e.textContent=fmt.format(price); });
+}
+
+// ─── UTILS ────────────────────────────────────────────────────────────────────
+function usdToBtc(usd) { return btcPrice > 0 ? usd / btcPrice : 0; }
+function usdToSats(usd) { return Math.round(usdToBtc(usd) * 1e8); }
+function fmtBtc(btc) {
+  if (btc >= 1) return btc.toFixed(4) + ' BTC';
+  if (btc >= 0.001) return (btc*1000).toFixed(3) + ' mBTC';
+  return fmtSats(btc * 1e8) + ' sats';
+}
+function fmtSats(s) { return new Intl.NumberFormat('en-US').format(Math.round(s)) + ' sats'; }
+function fmtUSD(u) { return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(u); }
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function renderAll() {
+  if (!btcPrice) return;
+  const assets = accounts.filter(a=>!a.isLiability).reduce((s,a)=>s+a.usd,0);
+  const liabilities = accounts.filter(a=>a.isLiability).reduce((s,a)=>s+a.usd,0);
+  const netUSD = assets - liabilities;
+  const netBtc = usdToBtc(netUSD);
+  const netSats = usdToSats(netUSD);
+
+  document.getElementById('heroNetWorth').textContent = fmtBtc(netBtc);
+  document.getElementById('heroUSD').textContent = fmtUSD(netUSD);
+  document.getElementById('heroSats').textContent = '≈ ' + fmtSats(netSats);
+
+  document.getElementById('totalAssets').textContent = fmtBtc(usdToBtc(assets));
+  document.getElementById('totalAssetsUSD').textContent = fmtUSD(assets);
+  document.getElementById('totalLiabilities').textContent = fmtBtc(usdToBtc(liabilities));
+  document.getElementById('totalLiabilitiesUSD').textContent = fmtUSD(liabilities);
+  document.getElementById('monthChange').textContent = '+0.0821 BTC';
+
+  // Ticker
+  ['t2','t2b'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=fmtBtc(netBtc); });
+  ['t3','t3b'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=fmtBtc(usdToBtc(assets)); });
+  ['t4','t4b'].forEach(id=>{ const e=document.getElementById(id); if(e) e.textContent=fmtBtc(usdToBtc(liabilities)); });
+
+  renderAccounts();
+  renderSpending();
+  updateChart();
+}
+
+const CAT_ORDER = [
+  { key:'Cash & Banking', types:['checking','savings'], icon:'🏦' },
+  { key:'Real Estate', types:['home','mortgage'], icon:'🏠' },
+  { key:'Investments', types:['401k','brokerage','bitcoin','crypto'], icon:'📈' },
+  { key:'Physical Assets', types:['vehicle','metals','other'], icon:'🔩' },
+  { key:'Loans & Debt', types:['loan'], icon:'💳' },
+];
+
+function renderAccounts() {
+  const grid = document.getElementById('accountsGrid');
+  grid.innerHTML = '';
+  CAT_ORDER.forEach(cat => {
+    const catAccounts = accounts.filter(a=>cat.types.includes(a.type));
+    const div = document.createElement('div');
+    div.className='account-category';
+    div.innerHTML=`<div class="cat-label">${cat.icon} ${cat.key}</div>`;
+    grid.appendChild(div);
+
+    catAccounts.forEach(acct => {
+      const btc = usdToBtc(acct.usd);
+      const sats = usdToSats(acct.usd);
+      const typeInfo = ACCOUNT_TYPES.find(t=>t.id===acct.type)||{icon:'📦'};
+      const card = document.createElement('div');
+      card.className='account-card';
+      card.innerHTML=`
+        <div class="card-top">
+          <div class="card-icon">${typeInfo.icon}</div>
+          <div class="card-menu" onclick="removeAccount(${acct.id})">✕</div>
+        </div>
+        <div class="card-name">${acct.name}</div>
+        <div class="card-institution">${acct.institution}</div>
+        <div class="card-amounts">
+          <div class="card-btc">${fmtBtc(btc)}</div>
+          <div class="card-usd">${fmtUSD(acct.usd)}</div>
+          <div class="card-sats">${fmtSats(sats)}</div>
+        </div>
+        <span class="card-badge ${acct.isLiability?'badge-liability':'badge-asset'}">${acct.isLiability?'LIABILITY':'ASSET'}</span>
+      `;
+      grid.appendChild(card);
+    });
+
+    // Add button in each category
+    const addBtn = document.createElement('div');
+    addBtn.className='add-card';
+    addBtn.onclick=()=>openModal(cat.types[0]);
+    addBtn.innerHTML=`<span class="add-icon">+</span><span>Add ${cat.key} Account</span>`;
+    grid.appendChild(addBtn);
+  });
+}
+
+function renderSpending() {
+  const half = Math.ceil(spending.length/2);
+  ['spendLeft','spendRight'].forEach((id,i) => {
+    const el = document.getElementById(id);
+    const slice = spending.slice(i*half, (i+1)*half);
+    el.innerHTML = slice.map(s=>`
+      <div class="spend-row">
+        <div class="spend-cat">
+          <span class="spend-emoji">${s.emoji}</span>
+          <span class="spend-name">${s.name}</span>
+        </div>
+        <div class="spend-amount">
+          ${s.usd>0?fmtSats(usdToSats(s.usd)):'-'}
+          <div class="spend-sats">${s.usd>0?fmtUSD(s.usd):''}</div>
+        </div>
+      </div>
+    `).join('');
+  });
+}
+
+// ─── CHART ────────────────────────────────────────────────────────────────────
+let chart;
+function generateHistory(range) {
+  const days = range==='1M'?30:range==='3M'?90:range==='6M'?180:range==='1Y'?365:730;
+  const labels=[], data=[];
+  const baseNetBtc = usdToBtc(accounts.filter(a=>!a.isLiability).reduce((s,a)=>s+a.usd,0) -
+                               accounts.filter(a=>a.isLiability).reduce((s,a)=>s+a.usd,0));
+  for(let i=days;i>=0;i--) {
+    const d = new Date(); d.setDate(d.getDate()-i);
+    labels.push(d.toLocaleDateString('en-US',{month:'short',day:'numeric'}));
+    const noise = (Math.sin(i*0.2)+Math.sin(i*0.07)+Math.sin(i*0.03))*0.08;
+    data.push(+(baseNetBtc * (0.82 + (days-i)/days*0.18 + noise*0.1)).toFixed(6));
+  }
+  return {labels,data};
+}
+
+function buildChart(range='1M') {
+  const {labels,data} = generateHistory(range);
+  const ctx = document.getElementById('netWorthChart').getContext('2d');
+  const grad = ctx.createLinearGradient(0,0,0,220);
+  grad.addColorStop(0,'rgba(247,147,26,0.25)');
+  grad.addColorStop(1,'rgba(247,147,26,0)');
+  if(chart) chart.destroy();
+  chart = new Chart(ctx, {
+    type:'line',
+    data:{labels,datasets:[{
+      data,
+      borderColor:'#f7931a',
+      borderWidth:2,
+      fill:true,
+      backgroundColor:grad,
+      pointRadius:0,
+      pointHoverRadius:5,
+      pointHoverBackgroundColor:'#f7931a',
+      tension:0.4,
+    }]},
+    options:{
+      responsive:true,
+      interaction:{intersect:false,mode:'index'},
+      plugins:{
+        legend:{display:false},
+        tooltip:{
+          backgroundColor:'#111',
+          borderColor:'#333',
+          borderWidth:1,
+          titleColor:'#666',
+          bodyColor:'#f7931a',
+          bodyFont:{family:'Space Mono',size:13},
+          callbacks:{label:(c)=>'₿ '+c.raw.toFixed(6)+' BTC'}
+        }
+      },
+      scales:{
+        x:{
+          grid:{color:'rgba(255,255,255,0.03)'},
+          ticks:{color:'#444',font:{size:11},maxTicksLimit:8}
+        },
+        y:{
+          grid:{color:'rgba(255,255,255,0.03)'},
+          ticks:{color:'#444',font:{family:'Space Mono',size:10},callback:v=>v.toFixed(4)+' ₿'}
+        }
+      }
+    }
+  });
+}
+
+function setRange(btn, range) {
+  document.querySelectorAll('.chart-tab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  buildChart(range);
+}
+
+function updateChart() {
+  if(!chart) buildChart();
+}
+
+// ─── MODAL ────────────────────────────────────────────────────────────────────
+function openModal(defaultType) {
+  selectedType = defaultType || null;
+  const tg = document.getElementById('typeGrid');
+  tg.innerHTML = ACCOUNT_TYPES.map(t=>`
+    <div class="type-btn ${t.id===selectedType?'selected':''}" onclick="selectType('${t.id}',this)">
+      <div class="t-icon">${t.icon}</div>
+      <div class="t-label">${t.label}</div>
+    </div>
+  `).join('');
+  document.getElementById('acctName').value='';
+  document.getElementById('acctInstitution').value='';
+  document.getElementById('acctValue').value='';
+  document.getElementById('btcEquiv').textContent='';
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+function selectType(id, el) {
+  selectedType = id;
+  document.querySelectorAll('.type-btn').forEach(b=>b.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function updateEquiv() {
+  const usd = parseFloat(document.getElementById('acctValue').value)||0;
+  if(btcPrice && usd>0) {
+    document.getElementById('btcEquiv').textContent = '≈ ' + fmtBtc(usdToBtc(usd)) + ' · ' + fmtSats(usdToSats(usd));
+  }
+}
+
+function addAccount() {
+  if(!selectedType) return alert('Please select an account type');
+  const name = document.getElementById('acctName').value.trim();
+  const institution = document.getElementById('acctInstitution').value.trim();
+  const usd = parseFloat(document.getElementById('acctValue').value)||0;
+  if(!name) return alert('Please enter an account name');
+  const typeInfo = ACCOUNT_TYPES.find(t=>t.id===selectedType);
+  accounts.push({
+    id: Date.now(),
+    type: selectedType,
+    name,
+    institution: institution||'Manual',
+    usd,
+    isLiability: typeInfo.isLiability
+  });
+  closeModal();
+  renderAll();
+}
+
+function removeAccount(id) {
+  accounts = accounts.filter(a=>a.id!==id);
+  renderAll();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+document.getElementById('modal').addEventListener('click', e=>{
+  if(e.target===document.getElementById('modal')) closeModal();
+});
+
+fetchBTCPrice();
+setInterval(fetchBTCPrice, 30000); // refresh every 30s
+</script>
+</body>
+</html>
