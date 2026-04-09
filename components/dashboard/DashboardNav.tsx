@@ -45,7 +45,7 @@ export function DashboardNav({ userEmail, btcPrice, onRefresh, refreshing }: Pro
           <div className="w-7 h-7 rounded-full bg-[#F7931A] flex items-center justify-center font-mono font-bold text-xs text-black">
             ₿
           </div>
-          <span className="font-bold text-white tracking-tight">Bitworth</span>
+          <span className="font-bold text-white tracking-tight">Satsworth</span>
         </div>
 
         {/* BTC price pill */}

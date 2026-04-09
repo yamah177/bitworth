@@ -9,7 +9,7 @@ export default function HomePage() {
           <div className="w-8 h-8 rounded-full bg-[#F7931A] flex items-center justify-center font-mono font-bold text-sm text-black">
             ₿
           </div>
-          <span className="text-lg font-bold tracking-tight">Bitworth</span>
+          <span className="text-lg font-bold tracking-tight">Satsworth</span>
         </div>
         <div className="flex items-center gap-3">
           <Link
