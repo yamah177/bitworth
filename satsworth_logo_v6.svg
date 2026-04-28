@@ -1,0 +1,55 @@
+<svg width="100%" viewBox="0 0 680 514" role="img" xmlns="http://www.w3.org/2000/svg">
+  <title style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">Satsworth logo v6</title>
+  <desc style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">App icon tightened</desc>
+  <defs>
+    
+    <symbol id="smark" viewBox="-60 -80 120 160">
+      <rect x="-14" y="-80" width="28" height="22" rx="3" fill="#F7931A"/>
+      <rect x="-58" y="-48" width="116" height="22" rx="3" fill="#F7931A"/>
+      <rect x="-58" y="-16" width="116" height="22" rx="3" fill="#F7931A"/>
+      <rect x="-58" y="16" width="116" height="22" rx="3" fill="#F7931A"/>
+      <rect x="-14" y="50" width="28" height="22" rx="3" fill="#F7931A"/>
+    </symbol>
+  </defs>
+
+  <!-- ── WORDMARK ── -->
+  <text x="340" y="32" text-anchor="middle" style="fill:rgb(136, 136, 136);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:system-ui, sans-serif;font-size:11px;font-weight:400;text-anchor:middle;dominant-baseline:auto">Full wordmark</text>
+  <rect x="40" y="46" width="600" height="120" rx="18" fill="#0d1117" style="fill:rgb(13, 17, 23);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <g transform="translate(90,106) rotate(15) scale(0.55)" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+    <use href="#smark" x="-60" y="-80" width="120" height="160" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  </g>
+  <text x="132" y="126" style="fill:rgb(240, 240, 240);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:system-ui, sans-serif;font-size:54px;font-weight:700;text-anchor:start;dominant-baseline:auto">atsworth</text>
+
+  <!-- ── APP ICON ── -->
+  <text x="215" y="228" text-anchor="middle" style="fill:rgb(136, 136, 136);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:system-ui, sans-serif;font-size:11px;font-weight:400;text-anchor:middle;dominant-baseline:auto">App icon</text>
+  <text x="465" y="228" text-anchor="middle" style="fill:rgb(136, 136, 136);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:system-ui, sans-serif;font-size:11px;font-weight:400;text-anchor:middle;dominant-baseline:auto">On phone</text>
+
+  <!-- Large app icon -->
+  <rect x="90" y="244" width="250" height="250" rx="56" fill="#0d1117" style="fill:rgb(13, 17, 23);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <!-- S mark — nudged right slightly vs v5 -->
+  <g transform="translate(170,368) rotate(15) scale(0.9)" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+    <use href="#smark" x="-60" y="-80" width="120" height="160" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  </g>
+
+  <!-- White W — nudged left slightly vs v5 -->
+  <text x="274" y="388" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="800" font-size="62" fill="white" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:system-ui, sans-serif;font-size:62px;font-weight:800;text-anchor:middle;dominant-baseline:auto">W</text>
+
+  <!-- Phone mockup -->
+  <rect x="370" y="214" width="260" height="290" rx="28" fill="#1a1a1a" style="fill:rgb(26, 26, 26);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  <rect x="380" y="224" width="240" height="270" rx="22" fill="#0a0a0a" style="fill:rgb(10, 10, 10);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <!-- Home screen icon -->
+  <rect x="422" y="280" width="96" height="96" rx="20" fill="#0d1117" style="fill:rgb(13, 17, 23);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+
+  <!-- S mark — nudged right vs v5 -->
+  <g transform="translate(447,328) rotate(15) scale(0.32)" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto">
+    <use href="#smark" x="-60" y="-80" width="120" height="160" style="fill:rgb(0, 0, 0);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:&quot;Anthropic Sans&quot;, -apple-system, &quot;system-ui&quot;, &quot;Segoe UI&quot;, sans-serif;font-size:16px;font-weight:400;text-anchor:start;dominant-baseline:auto"/>
+  </g>
+
+  <!-- White W — nudged left vs v5 -->
+  <text x="493" y="338" text-anchor="middle" font-family="system-ui, sans-serif" font-weight="800" font-size="22" fill="white" style="fill:rgb(255, 255, 255);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:system-ui, sans-serif;font-size:22px;font-weight:800;text-anchor:middle;dominant-baseline:auto">W</text>
+
+  <text x="470" y="394" text-anchor="middle" font-family="system-ui, sans-serif" font-size="11" fill="#888" style="fill:rgb(136, 136, 136);stroke:none;color:rgb(255, 255, 255);stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;opacity:1;font-family:system-ui, sans-serif;font-size:11px;font-weight:400;text-anchor:middle;dominant-baseline:auto">Satsworth</text>
+
+</svg>

@@ -11,6 +11,7 @@ import { AssetsList } from '@/components/dashboard/AssetsList'
 import { LiabilitiesList } from '@/components/dashboard/LiabilitiesList'
 import { AllocationBreakdown } from '@/components/dashboard/AllocationBreakdown'
 import { BtcInsightCard } from '@/components/dashboard/BtcInsightCard'
+import { BtcPercentileCard } from '@/components/dashboard/BtcPercentileCard'
 
 interface Props { userEmail: string }
 
@@ -161,6 +162,7 @@ export function DashboardClient({ userEmail }: Props) {
         </div>
         <LiabilitiesList liabilities={liabilities} btcPrice={usdPrice} currency={currency} onRefresh={handleRefresh} />
         {!isEmpty && <BtcInsightCard netWorthUsd={netWorthUsd} netWorthBtc={netWorthBtc} btcPrice={usdPrice} />}
+        {!isEmpty && <BtcPercentileCard netWorthBtc={netWorthBtc} />}
         <div className="pb-6" />
       </main>
     </div>
