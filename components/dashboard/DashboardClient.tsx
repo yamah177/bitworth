@@ -134,7 +134,9 @@ export function DashboardClient({ userEmail }: Props) {
         currency={currency}
         onCurrencyChange={setCurrency}
         onRefresh={handleRefresh}
+        onRefresh={handleRefresh}
         refreshing={refreshing}
+        onImported={handleRefresh}
       />
       <main className="max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-4 animate-fade-in">
         {isEmpty && (
