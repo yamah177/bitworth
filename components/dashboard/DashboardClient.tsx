@@ -134,7 +134,6 @@ export function DashboardClient({ userEmail }: Props) {
         currency={currency}
         onCurrencyChange={setCurrency}
         onRefresh={handleRefresh}
-        onRefresh={handleRefresh}
         refreshing={refreshing}
         onImported={handleRefresh}
       />
