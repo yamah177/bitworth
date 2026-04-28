@@ -16,22 +16,18 @@ const DISTRIBUTION = [
 ]
 
 const TOTAL_ADDRESSES = DISTRIBUTION.reduce((s, d) => s + d.addresses, 0)
-const GLOBAL_POPULATION = 8_000_000_000
 
 function calcPercentile(btc: number) {
-  if (btc <= 0) return { topPct: 100, betterThanPct: 0, addressesAbove: TOTAL_ADDRESSES, btcBracket: '' }
+  if (btc <= 0) return { topPctHolders: 100, betterThanPct: 0, addressesAbove: TOTAL_ADDRESSES }
   const bracket = DISTRIBUTION.find(d => btc >= d.min && btc < d.max) ?? DISTRIBUTION[DISTRIBUTION.length - 1]
   let addressesAbove = 0
   for (const d of DISTRIBUTION) { if (d.min >= bracket.max) addressesAbove += d.addresses }
   const betterThanPct = ((TOTAL_ADDRESSES - addressesAbove) / TOTAL_ADDRESSES) * 100
-  const topPct = (addressesAbove / GLOBAL_POPULATION) * 100
-  const btcBracket = `${bracket.min}-${bracket.max} BTC`
-  return { topPct, betterThanPct, addressesAbove, btcBracket }
+  const topPctHolders = (addressesAbove / TOTAL_ADDRESSES) * 100
+  return { topPctHolders, betterThanPct, addressesAbove }
 }
 
-// Labels based on BTC amount held — more intuitive than topPct
 function getLabel(btc: number): { label: string; color: string } {
-  if (btc >= 100000) return { label: 'Satoshi tier 👑',  color: '#a855f7' }
   if (btc >= 10000)  return { label: 'Ultra whale 🐋',   color: '#a855f7' }
   if (btc >= 1000)   return { label: 'Whale 🐳',          color: '#6366f1' }
   if (btc >= 100)    return { label: 'Humpback 🐋',       color: '#3b82f6' }
@@ -45,23 +41,20 @@ function getLabel(btc: number): { label: string; color: string } {
 
 function getMotivation(btc: number): string {
   const multiple = (btc / (21_000_000 / 8_000_000_000)).toFixed(0)
-  if (btc <= 0)     return ''
-  if (btc < 0.001)  return `You hold ${Math.round(btc * 1e8).toLocaleString()} sats. Every sat counts — keep stacking.`
-  if (btc < 0.01)   return `You're a crab! Hold on tight and keep accumulating.`
-  if (btc < 0.1)    return `You hold ${multiple}× what the average person would have if Bitcoin were divided equally among 8 billion people.`
-  if (btc < 1)      return `Less than 9% of all Bitcoin addresses hold this much. You're ahead of the vast majority.`
-  if (btc < 10)     return `Fewer than 2% of all Bitcoin addresses hold ≥ 1 BTC. You're in rare company.`
-  if (btc < 100)    return `You're in the top 0.32% of all Bitcoin addresses on Earth. A true Bitcoin holder.`
-  if (btc < 1000)   return `You hold more Bitcoin than 99.97% of all addresses. Generational wealth territory.`
+  if (btc <= 0)    return ''
+  if (btc < 0.001) return `You hold ${Math.round(btc * 1e8).toLocaleString()} sats. Every sat counts — keep stacking.`
+  if (btc < 0.1)   return `You hold ${multiple}× what the average person would have if Bitcoin were divided equally among 8 billion people.`
+  if (btc < 1)     return `Less than 9% of all Bitcoin addresses hold this much. You're ahead of the vast majority.`
+  if (btc < 10)    return `Fewer than 2% of all Bitcoin addresses hold ≥ 1 BTC. You're in rare company.`
+  if (btc < 100)   return `You're in the top 0.32% of all Bitcoin addresses on Earth. A true Bitcoin holder.`
+  if (btc < 1000)  return `You hold more Bitcoin than 99.97% of all addresses. Generational wealth territory.`
   return `You are among the rarest Bitcoin holders on the planet. Fewer than 2,000 addresses hold this much.`
 }
 
-function formatTopPct(pct: number): string {
-  if (pct < 0.0001) return '< 0.0001%'
-  if (pct < 0.001)  return `${pct.toFixed(4)}%`
-  if (pct < 0.01)   return `${pct.toFixed(3)}%`
-  if (pct < 0.1)    return `${pct.toFixed(2)}%`
-  if (pct < 1)      return `${pct.toFixed(2)}%`
+function formatPct(pct: number): string {
+  if (pct < 0.01)  return `${pct.toFixed(3)}%`
+  if (pct < 0.1)   return `${pct.toFixed(2)}%`
+  if (pct < 1)     return `${pct.toFixed(2)}%`
   return `${pct.toFixed(1)}%`
 }
 
@@ -69,13 +62,12 @@ interface Props { netWorthBtc: number }
 
 export function BtcPercentileCard({ netWorthBtc }: Props) {
   if (netWorthBtc <= 0) return null
-  const { topPct, betterThanPct, addressesAbove } = calcPercentile(netWorthBtc)
+  const { topPctHolders, betterThanPct, addressesAbove } = calcPercentile(netWorthBtc)
   const { label, color } = getLabel(netWorthBtc)
   const motivation = getMotivation(netWorthBtc)
   const barPosition = Math.min(98, betterThanPct)
   const sats = Math.round(netWorthBtc * 100_000_000)
 
-  // Next milestone
   const milestones = [0.001, 0.01, 0.1, 1, 10, 100, 1000, 10000]
   const nextMilestone = milestones.find(m => m > netWorthBtc)
   const prevMilestone = [...milestones].reverse().find(m => m <= netWorthBtc) ?? 0
@@ -85,7 +77,6 @@ export function BtcPercentileCard({ netWorthBtc }: Props) {
 
   return (
     <div className="bg-[#111] border border-white/5 rounded-2xl p-5">
-      {/* Header */}
       <div className="flex items-start justify-between mb-5">
         <div>
           <div className="text-xs text-white/40 uppercase tracking-wider font-medium mb-2">
@@ -93,17 +84,13 @@ export function BtcPercentileCard({ netWorthBtc }: Props) {
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             <div style={{ color, fontFamily: 'monospace', fontSize: '32px', fontWeight: 700, lineHeight: 1 }}>
-              Top {formatTopPct(topPct)}
+              Top {formatPct(topPctHolders)}
             </div>
-            <div style={{
-              background: color + '20', border: `1px solid ${color}40`, color,
-              borderRadius: '100px', padding: '3px 12px',
-              fontSize: '12px', fontWeight: 600,
-            }}>
+            <div style={{ background: color + '20', border: `1px solid ${color}40`, color, borderRadius: '100px', padding: '3px 12px', fontSize: '12px', fontWeight: 600 }}>
               {label}
             </div>
           </div>
-          <div className="text-xs text-white/25 mt-1">of all people on Earth</div>
+          <div className="text-xs text-white/25 mt-1">of all Bitcoin addresses</div>
         </div>
         <div className="text-right flex-shrink-0">
           <div className="text-xs text-white/25 mb-1">Your sats</div>
@@ -112,30 +99,19 @@ export function BtcPercentileCard({ netWorthBtc }: Props) {
         </div>
       </div>
 
-      {/* Global percentile bar */}
+      {/* Bar vs BTC holders */}
       <div className="mb-5">
         <div className="flex justify-between mb-1">
-          <span className="text-xs text-white/25">Position vs all BTC holders</span>
-          <span className="text-xs font-mono" style={{ color }}>{betterThanPct.toFixed(1)}% of addresses</span>
+          <span className="text-xs text-white/25">Position among {(TOTAL_ADDRESSES / 1_000_000).toFixed(1)}M BTC addresses</span>
+          <span className="text-xs font-mono" style={{ color }}>{betterThanPct.toFixed(1)}% below you</span>
         </div>
         <div style={{ height: '6px', background: 'rgba(255,255,255,0.06)', borderRadius: '100px', position: 'relative' }}>
-          <div style={{
-            position: 'absolute', left: 0, top: 0, height: '100%',
-            width: `${barPosition}%`, borderRadius: '100px',
-            background: `linear-gradient(90deg, #333 0%, ${color} 100%)`,
-            transition: 'width 0.8s ease',
-          }} />
-          <div style={{
-            position: 'absolute', left: `${barPosition}%`, top: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: '14px', height: '14px', borderRadius: '50%',
-            background: color, boxShadow: `0 0 10px ${color}80`,
-            border: '2px solid #111',
-          }} />
+          <div style={{ position: 'absolute', left: 0, top: 0, height: '100%', width: `${barPosition}%`, borderRadius: '100px', background: `linear-gradient(90deg, #333 0%, ${color} 100%)`, transition: 'width 0.8s ease' }} />
+          <div style={{ position: 'absolute', left: `${barPosition}%`, top: '50%', transform: 'translate(-50%, -50%)', width: '14px', height: '14px', borderRadius: '50%', background: color, boxShadow: `0 0 10px ${color}80`, border: '2px solid #111' }} />
         </div>
         <div className="flex justify-between mt-1.5">
-          <span className="text-xs text-white/15">0 BTC</span>
-          <span className="text-xs text-white/15">Top holder</span>
+          <span className="text-xs text-white/15">Smallest holders</span>
+          <span className="text-xs text-white/15">Largest holders</span>
         </div>
       </div>
 
@@ -147,12 +123,7 @@ export function BtcPercentileCard({ netWorthBtc }: Props) {
             <span className="text-xs font-mono text-white/40">{progressToNext.toFixed(1)}%</span>
           </div>
           <div style={{ height: '4px', background: 'rgba(255,255,255,0.06)', borderRadius: '100px' }}>
-            <div style={{
-              height: '100%', width: `${progressToNext}%`,
-              borderRadius: '100px',
-              background: '#F7931A',
-              transition: 'width 0.8s ease',
-            }} />
+            <div style={{ height: '100%', width: `${progressToNext}%`, borderRadius: '100px', background: '#F7931A', transition: 'width 0.8s ease' }} />
           </div>
           <div className="text-xs text-white/20 mt-1">
             ₿ {(nextMilestone - netWorthBtc).toFixed(4)} more to reach next tier
@@ -175,9 +146,7 @@ export function BtcPercentileCard({ netWorthBtc }: Props) {
       </div>
 
       {motivation && (
-        <p className="text-xs text-white/40 leading-relaxed border-t border-white/5 pt-4">
-          ⚡ {motivation}
-        </p>
+        <p className="text-xs text-white/40 leading-relaxed border-t border-white/5 pt-4">⚡ {motivation}</p>
       )}
       <p className="text-xs text-white/15 mt-2">
         Based on Bitcoin address distribution from BitInfoCharts. One person may control multiple addresses.
