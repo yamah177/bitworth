@@ -162,9 +162,10 @@ export function DashboardClient({ userEmail }: Props) {
         </div>
         <LiabilitiesList liabilities={liabilities} btcPrice={usdPrice} currency={currency} onRefresh={handleRefresh} />
         {!isEmpty && <BtcInsightCard netWorthUsd={netWorthUsd} netWorthBtc={netWorthBtc} btcPrice={usdPrice} />}
-        {!isEmpty && <BtcPercentileCard netWorthBtc={netWorthBtc} />}
+        {!isEmpty && <BtcPercentileCard key={netWorthBtc.toFixed(4)} netWorthBtc={netWorthBtc} />}
         <div className="pb-6" />
       </main>
     </div>
   )
 }
+
