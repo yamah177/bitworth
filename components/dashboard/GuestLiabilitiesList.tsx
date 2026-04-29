@@ -16,7 +16,7 @@ interface FormProps {
 
 function LiabilityForm({ onClose, onSaved, existing }: FormProps) {
   const [name, setName] = useState(existing?.name ?? '')
-  const [type, setType] = useState(existing?.type ?? 'mortgage')
+  const [type, setType] = useState<string>(existing?.type ?? 'mortgage')
   const [institution, setInstitution] = useState(existing?.institution ?? '')
   const [balance, setBalance] = useState(existing?.usd_balance?.toString() ?? '')
   const [notes, setNotes] = useState(existing?.notes ?? '')

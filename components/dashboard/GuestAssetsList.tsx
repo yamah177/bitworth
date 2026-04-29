@@ -16,7 +16,7 @@ interface FormProps {
 
 function AccountForm({ onClose, onSaved, existing }: FormProps) {
   const [name, setName] = useState(existing?.name ?? '')
-  const [type, setType] = useState(existing?.type ?? 'brokerage')
+  const [type, setType] = useState<string>(existing?.type ?? 'brokerage')
   const [institution, setInstitution] = useState(existing?.institution ?? '')
   const [value, setValue] = useState(existing?.usd_value?.toString() ?? '')
   const [notes, setNotes] = useState(existing?.notes ?? '')
